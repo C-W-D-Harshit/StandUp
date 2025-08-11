@@ -198,27 +198,6 @@ export function StandingDeskTimer() {
 
         {/* Main Timer Display */}
         <div className="text-center mb-12">
-          {/* Status Indicator - neutral pill with colored dot for minimal noise */}
-          <div className="mb-8">
-            <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-muted/40 text-foreground/80">
-              <div
-                className={`w-1.5 h-1.5 rounded-full mr-2 ${
-                  timer.status === "running"
-                    ? "bg-green-500"
-                    : timer.status === "paused"
-                    ? "bg-yellow-500"
-                    : timer.status === "completed"
-                    ? "bg-blue-500"
-                    : "bg-muted-foreground"
-                }`}
-              />
-              {timer.status === "idle" && "Ready"}
-              {timer.status === "running" && "Sitting session"}
-              {timer.status === "paused" && "Paused"}
-              {timer.status === "completed" && "Time to stand!"}
-            </div>
-          </div>
-
           {/* Large Timer Display */}
           {/* Uses tabular-nums for consistent character width */}
           <div className="mb-8">
