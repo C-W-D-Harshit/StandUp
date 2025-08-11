@@ -12,6 +12,8 @@ import { useSpeech } from '@/hooks/useSpeech';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { DEFAULT_TIMER_PRESETS, DEFAULT_SETTINGS, NOTIFICATION_MESSAGE } from '@/types';
 import type { AppSettings } from '@/types';
+import { DevPanel } from './DevPanel';
+import { ModeToggle } from './mode-toggle';
 
 export function StandingDeskTimer() {
   const [settings, setSettings] = useLocalStorage<AppSettings>('standing-desk-timer-settings', DEFAULT_SETTINGS);
@@ -81,17 +83,30 @@ export function StandingDeskTimer() {
     timer.reset();
   };
 
+  const handleShowAlert = () => {
+    setShowAlert(true);
+  };
+
+  const handleHideAlert = () => {
+    setShowAlert(false);
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-2xl space-y-8">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-light tracking-tight text-foreground">
-            Standing Desk Timer
-          </h1>
-          <p className="text-muted-foreground">
-            Take regular breaks to improve your health and productivity
-          </p>
+        <div className="relative">
+          <div className="absolute top-0 right-0">
+            <ModeToggle />
+          </div>
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-light tracking-tight text-foreground">
+              Standing Desk Timer
+            </h1>
+            <p className="text-muted-foreground">
+              Take regular breaks to improve your health and productivity
+            </p>
+          </div>
         </div>
 
         {/* Main Timer Card */}
@@ -261,6 +276,22 @@ export function StandingDeskTimer() {
             </Alert>
           </div>
         )}
+
+        {/* Developer Testing Panel */}
+        <DevPanel
+          timer={{
+            timeRemaining: timer.timeRemaining,
+            status: timer.status,
+            setDuration: timer.setDuration,
+            start: timer.start,
+            pause: timer.pause,
+            stop: timer.stop,
+            reset: timer.reset,
+          }}
+          settings={settings}
+          onShowAlert={handleShowAlert}
+          onHideAlert={handleHideAlert}
+        />
       </div>
     </div>
   );
