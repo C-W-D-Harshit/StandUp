@@ -517,8 +517,8 @@ export function StandingDeskTimer() {
       {/* End container */}
 
       {/* Site footer: author and GitHub star */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30">
-        <div className="flex items-center gap-12 rounded-full border border-border/60 bg-card/80 backdrop-blur-md px-4 py-2 text-xs text-muted-foreground shadow-sm">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 w-full lg:max-w-sm">
+        <div className="flex items-center justify-between gap-12 rounded-full border border-border/60 bg-card/80 backdrop-blur-md px-4 py-2 text-xs text-muted-foreground shadow-sm">
           <span>
             Made with <span aria-hidden>💖</span> by
             <a
