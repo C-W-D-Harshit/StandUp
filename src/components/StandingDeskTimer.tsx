@@ -154,13 +154,6 @@ export function StandingDeskTimer() {
     hasAnnouncedRef.current = false;
   };
 
-  const handleShowAlert = () => {
-    setShowAlert(true);
-  };
-
-  const handleHideAlert = () => {
-    setShowAlert(false);
-  };
 
   // Toggle between sitting (countdown) and standing (stopwatch)
   const handleToggleMode = () => {
