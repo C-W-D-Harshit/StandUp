@@ -186,7 +186,7 @@ export function StandingDeskTimer() {
       </div>
 
       <div className="w-full max-w-md px-6 py-10">
-        <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur px-6 py-8 shadow-sm">
+        <div className="rounded-2xl border border-border/50 bg-card/90 backdrop-blur-2xl px-6 py-8 shadow-sm">
           {/* Header */}
           <div className="text-center mb-10">
             <h1 className="text-2xl font-medium tracking-tight text-foreground mb-3">
@@ -504,21 +504,23 @@ export function StandingDeskTimer() {
           </div>
         )}
 
-        {/* Developer Testing Panel */}
-        <DevPanel
-          timer={{
-            timeRemaining: timer.timeRemaining,
-            status: timer.status,
-            setDuration: timer.setDuration,
-            start: timer.start,
-            pause: timer.pause,
-            stop: timer.stop,
-            reset: timer.reset,
-          }}
-          settings={settings}
-          onShowAlert={handleShowAlert}
-          onHideAlert={handleHideAlert}
-        />
+        {/* Developer Testing Panel (only in development) */}
+        {import.meta.env.DEV && (
+          <DevPanel
+            timer={{
+              timeRemaining: timer.timeRemaining,
+              status: timer.status,
+              setDuration: timer.setDuration,
+              start: timer.start,
+              pause: timer.pause,
+              stop: timer.stop,
+              reset: timer.reset,
+            }}
+            settings={settings}
+            onShowAlert={handleShowAlert}
+            onHideAlert={handleHideAlert}
+          />
+        )}
       </div>
       {/* End container */}
     </div>
