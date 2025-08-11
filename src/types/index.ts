@@ -4,6 +4,8 @@ export interface TimerPreset {
   seconds: number;
 }
 
+export type SessionType = 'sitting' | 'standing';
+
 export interface AppSettings {
   timerDuration: number; // in seconds
   speechEnabled: boolean;
@@ -11,6 +13,8 @@ export interface AppSettings {
   speechRate: number;
   speechPitch: number;
   speechVolume: number;
+  currentSession: SessionType;
+  sessionCount: number;
 }
 
 export const DEFAULT_TIMER_PRESETS: TimerPreset[] = [
@@ -21,12 +25,17 @@ export const DEFAULT_TIMER_PRESETS: TimerPreset[] = [
 ] as const;
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  timerDuration: 15 * 60, // 15 minutes default
+  timerDuration: 30 * 60, // 30 minutes default
   speechEnabled: true,
   selectedVoice: null,
   speechRate: 1,
   speechPitch: 1,
   speechVolume: 1,
+  currentSession: 'sitting',
+  sessionCount: 0,
 } as const;
 
-export const NOTIFICATION_MESSAGE = 'Stand up now!' as const;
+export const SESSION_MESSAGES = {
+  sitting: 'Time to stand up! Take a break and change your posture.',
+  standing: 'You can sit back down now. Great job on standing!',
+} as const;

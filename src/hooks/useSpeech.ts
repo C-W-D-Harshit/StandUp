@@ -82,41 +82,47 @@ export function useSpeech() {
       // Cancel any ongoing speech
       speechSynthesis.cancel();
       
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Find and set the voice
-      if (settings.voice) {
-        const selectedVoice = speechSynthesis.getVoices().find(
-          voice => voice.voiceURI === settings.voice || voice.name === settings.voice
-        );
-        if (selectedVoice) {
-          utterance.voice = selectedVoice;
+      // Small delay to ensure cancel completes
+      setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Find and set the voice
+        if (settings.voice) {
+          const selectedVoice = speechSynthesis.getVoices().find(
+            voice => voice.voiceURI === settings.voice || voice.name === settings.voice
+          );
+          if (selectedVoice) {
+            utterance.voice = selectedVoice;
+          }
         }
-      }
 
-      // Set speech parameters
-      utterance.rate = Math.max(0.1, Math.min(2, settings.rate));
-      utterance.pitch = Math.max(0, Math.min(2, settings.pitch));
-      utterance.volume = Math.max(0, Math.min(1, settings.volume));
+        // Set speech parameters
+        utterance.rate = Math.max(0.1, Math.min(2, settings.rate));
+        utterance.pitch = Math.max(0, Math.min(2, settings.pitch));
+        utterance.volume = Math.max(0, Math.min(1, settings.volume));
 
-      // Event handlers
-      utterance.onstart = () => {
-        setIsSpeaking(true);
-        setError(null);
-      };
+        // Event handlers
+        utterance.onstart = () => {
+          setIsSpeaking(true);
+          setError(null);
+          console.log('Speech started:', text);
+        };
 
-      utterance.onend = () => {
-        setIsSpeaking(false);
-      };
+        utterance.onend = () => {
+          setIsSpeaking(false);
+          console.log('Speech ended');
+        };
 
-      utterance.onerror = (event) => {
-        setIsSpeaking(false);
-        setError(`Speech error: ${event.error}`);
-        console.error('Speech synthesis error:', event);
-      };
+        utterance.onerror = (event) => {
+          setIsSpeaking(false);
+          setError(`Speech error: ${event.error}`);
+          console.error('Speech synthesis error:', event);
+        };
 
-      // Speak
-      speechSynthesis.speak(utterance);
+        // Speak
+        console.log('Speaking:', text);
+        speechSynthesis.speak(utterance);
+      }, 100);
 
     } catch (err) {
       setError(`Failed to speak: ${err instanceof Error ? err.message : 'Unknown error'}`);

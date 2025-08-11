@@ -1,17 +1,30 @@
-import { useState } from 'react';
-import { Bug, FastForward, Volume2, Bell, RotateCcw, EyeOff } from 'lucide-react';
+import { useState } from "react";
+import {
+  Bug,
+  FastForward,
+  Volume2,
+  Bell,
+  RotateCcw,
+  EyeOff,
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-import { useSpeech } from '@/hooks/useSpeech';
-import { NOTIFICATION_MESSAGE } from '@/types';
-import type { AppSettings } from '@/types';
+import { useSpeech } from "@/hooks/useSpeech";
+import { SESSION_MESSAGES } from "@/types";
+import type { AppSettings } from "@/types";
 
 interface DevPanelProps {
   timer: {
     timeRemaining: number;
-    status: 'idle' | 'running' | 'paused' | 'completed';
+    status: "idle" | "running" | "paused" | "completed";
     setDuration: (seconds: number) => void;
     start: () => void;
     pause: () => void;
@@ -23,21 +36,31 @@ interface DevPanelProps {
   onHideAlert: () => void;
 }
 
-export function DevPanel({ timer, settings, onShowAlert, onHideAlert }: DevPanelProps) {
+/**
+ * DevPanel
+ *
+ * Lightweight testing utilities kept visually unobtrusive to match a minimal UI.
+ */
+export function DevPanel({
+  timer,
+  settings,
+  onShowAlert,
+  onHideAlert,
+}: DevPanelProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [testMessage, setTestMessage] = useState<string>(NOTIFICATION_MESSAGE);
+  const [testMessage, setTestMessage] = useState<string>(SESSION_MESSAGES.sitting);
   const speech = useSpeech();
 
   const fastForwardOptions = [
-    { label: '10 seconds', seconds: 10 },
-    { label: '5 seconds', seconds: 5 },
-    { label: '3 seconds', seconds: 3 },
-    { label: '1 second', seconds: 1 },
+    { label: "10 seconds", seconds: 10 },
+    { label: "5 seconds", seconds: 5 },
+    { label: "3 seconds", seconds: 3 },
+    { label: "1 second", seconds: 1 },
   ];
 
   const handleFastForward = (seconds: number) => {
     timer.setDuration(seconds);
-    if (timer.status !== 'running') {
+    if (timer.status !== "running") {
       timer.start();
     }
   };
@@ -72,7 +95,7 @@ export function DevPanel({ timer, settings, onShowAlert, onHideAlert }: DevPanel
           onClick={() => setIsVisible(true)}
           size="sm"
           variant="outline"
-          className="gap-2 bg-background/80 backdrop-blur-sm border-orange-500/50 text-orange-600 hover:bg-orange-50"
+          className="gap-2 bg-background/80"
         >
           <Bug className="h-4 w-4" />
           Dev Tools
@@ -83,11 +106,11 @@ export function DevPanel({ timer, settings, onShowAlert, onHideAlert }: DevPanel
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-80">
-      <Card className="border-orange-500/50 bg-background/95 backdrop-blur-sm">
+      <Card className="bg-card">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-sm font-medium text-orange-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Bug className="h-4 w-4" />
                 Developer Testing Panel
               </CardTitle>
@@ -112,7 +135,7 @@ export function DevPanel({ timer, settings, onShowAlert, onHideAlert }: DevPanel
             <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Timer Testing
             </h4>
-            
+
             <div className="flex gap-2">
               <Button
                 onClick={handleForceComplete}
@@ -157,19 +180,31 @@ export function DevPanel({ timer, settings, onShowAlert, onHideAlert }: DevPanel
             <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Voice Testing
             </h4>
-            
+
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs">Speech Supported:</span>
-                <span className={`text-xs px-2 py-0.5 rounded ${speech.isSupported ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                  {speech.isSupported ? 'Yes' : 'No'}
+                <span
+                  className={`text-xs px-2 py-0.5 rounded ${
+                    speech.isSupported
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {speech.isSupported ? "Yes" : "No"}
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <span className="text-xs">Is Speaking:</span>
-                <span className={`text-xs px-2 py-0.5 rounded ${speech.isSpeaking ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
-                  {speech.isSpeaking ? 'Yes' : 'No'}
+                <span
+                  className={`text-xs px-2 py-0.5 rounded ${
+                    speech.isSpeaking
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {speech.isSpeaking ? "Yes" : "No"}
                 </span>
               </div>
 
@@ -226,7 +261,7 @@ export function DevPanel({ timer, settings, onShowAlert, onHideAlert }: DevPanel
             <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Alert Testing
             </h4>
-            
+
             <Button
               onClick={handleTestAlert}
               size="sm"
@@ -243,7 +278,7 @@ export function DevPanel({ timer, settings, onShowAlert, onHideAlert }: DevPanel
             <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Current State
             </h4>
-            
+
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
                 <span>Timer Status:</span>
@@ -255,12 +290,21 @@ export function DevPanel({ timer, settings, onShowAlert, onHideAlert }: DevPanel
               </div>
               <div className="flex justify-between">
                 <span>Speech Enabled:</span>
-                <span className="font-mono">{settings.speechEnabled ? 'Yes' : 'No'}</span>
+                <span className="font-mono">
+                  {settings.speechEnabled ? "Yes" : "No"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Selected Voice:</span>
-                <span className="font-mono text-xs truncate max-w-24" title={settings.selectedVoice || 'None'}>
-                  {settings.selectedVoice ? speech.voices.find(v => v.voiceURI === settings.selectedVoice)?.name?.substring(0, 15) || 'Unknown' : 'None'}
+                <span
+                  className="font-mono text-xs truncate max-w-24"
+                  title={settings.selectedVoice || "None"}
+                >
+                  {settings.selectedVoice
+                    ? speech.voices
+                        .find((v) => v.voiceURI === settings.selectedVoice)
+                        ?.name?.substring(0, 15) || "Unknown"
+                    : "None"}
                 </span>
               </div>
             </div>
