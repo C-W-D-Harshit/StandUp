@@ -20,21 +20,6 @@ export function useSpeech() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check for speech synthesis support
-  useEffect(() => {
-    const checkSupport = () => {
-      if ('speechSynthesis' in window) {
-        setIsSupported(true);
-        loadVoices();
-      } else {
-        setIsSupported(false);
-        setError('Speech synthesis is not supported in this browser');
-      }
-    };
-
-    checkSupport();
-  }, []);
-
   const loadVoices = useCallback(() => {
     if (!('speechSynthesis' in window)) return;
 
@@ -65,6 +50,21 @@ export function useSpeech() {
       speechSynthesis.removeEventListener('voiceschanged', updateVoices);
     };
   }, []);
+
+  // Check for speech synthesis support
+  useEffect(() => {
+    const checkSupport = () => {
+      if ('speechSynthesis' in window) {
+        setIsSupported(true);
+        loadVoices();
+      } else {
+        setIsSupported(false);
+        setError('Speech synthesis is not supported in this browser');
+      }
+    };
+
+    checkSupport();
+  }, [loadVoices]);
 
   const speak = useCallback((
     text: string, 
