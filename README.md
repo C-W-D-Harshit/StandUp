@@ -1,69 +1,45 @@
-# React + TypeScript + Vite
+# StandUp - Standing Desk Timer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![StandUp preview](./public/image.png)
 
-Currently, two official plugins are available:
+Minimal, elegant timer to remind you to stand after long sitting periods, plus a standing stopwatch. Built with React, TypeScript, Vite, Tailwind v4, and shadcn/ui.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Sitting countdown with presets (15/30/45/60 minutes)
+- Standing mode as an infinite stopwatch (00:00 → …)
+- Auto-switch to standing on completion, with a clean alert and optional voice notification
+- Single-click mode toggle next to Start/Pause
+- Minimal, centered UI with theme toggle and accessible controls
+- Settings as a dialog (voice on/off, voice selection, duration)
+- PWA-ready icons and manifest
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Quick start
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm build
+pnpm preview
 ```
+
+## Configuration
+
+- Title and icons are defined in `index.html`
+- PWA manifest generated in `dist/manifest.webmanifest`
+- Main timer UI in `src/components/StandingDeskTimer.tsx`
+- Hooks: `src/hooks/useTimer.ts` (countdown), `src/hooks/useStopwatch.ts` (standing)
+
+## Accessibility
+
+- Settings dialog uses proper roles/labels (`aria-*`) and keyboard focus
+- Controls include labels and semantic variants
+
+## License
+
+MIT © 2025 StandUp Contributors
