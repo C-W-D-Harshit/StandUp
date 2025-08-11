@@ -22,6 +22,14 @@ import {
 } from "@/types";
 import type { AppSettings } from "@/types";
 import { DevPanel } from "./DevPanel";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ModeToggle } from "./mode-toggle";
 
 /**
@@ -171,274 +179,307 @@ export function StandingDeskTimer() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background grid place-items-center">
       {/* Theme Toggle - Fixed Position */}
       <div className="fixed top-6 right-6 z-40">
         <ModeToggle />
       </div>
 
-      <div className="mx-auto max-w-md px-6 py-16 sm:py-20">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-2xl font-medium tracking-tight text-foreground mb-3">
-            Standing Desk Timer
-          </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            Take regular breaks to improve your health and productivity
-          </p>
-          <div className="flex items-center justify-center">
-            <div className="px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-muted/40 text-foreground/80">
-              {settings.currentSession === "sitting"
-                ? "💺 Sitting mode"
-                : "🧍 Standing mode"}
-            </div>
-          </div>
-          {/* Mode switch moved near primary controls below */}
-        </div>
-
-        {/* Main Timer Display */}
-        <div className="text-center mb-12">
-          {/* Large Timer Display */}
-          {/* Uses tabular-nums for consistent character width */}
-          <div className="mb-8">
-            <div className="text-6xl sm:text-7xl font-extralight tabular-nums tracking-tighter text-foreground mb-4 leading-none">
-              {settings.currentSession === "sitting"
-                ? timer.formatTime
-                : standing.formatTime}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {settings.currentSession === "sitting"
-                ? DEFAULT_TIMER_PRESETS.find(
-                    (p) => p.seconds === settings.timerDuration
-                  )?.label || "Custom Duration"
-                : "Standing time"}
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          {settings.currentSession === "sitting" &&
-            timer.status === "running" && (
-              <div className="mb-8">
-                <div className="w-full bg-muted/50 rounded-full h-0.5">
-                  <div
-                    className="bg-foreground h-0.5 rounded-full transition-all duration-1000 ease-linear"
-                    style={{ width: `${timer.progress}%` }}
-                  />
-                </div>
+      <div className="w-full max-w-md px-6 py-10">
+        <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur px-6 py-8 shadow-sm">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <h1 className="text-2xl font-medium tracking-tight text-foreground mb-3">
+              Standing Desk Timer
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              Take regular breaks to improve your health and productivity
+            </p>
+            <div className="flex items-center justify-center">
+              <div className="px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-muted/40 text-foreground/80">
+                {settings.currentSession === "sitting"
+                  ? "💺 Sitting mode"
+                  : "🧍 Standing mode"}
               </div>
-            )}
+            </div>
+            {/* Mode switch moved near primary controls below */}
+          </div>
+          {/* Main Timer Display */}
+          <div className="text-center mb-12">
+            {/* Large Timer Display */}
+            {/* Uses tabular-nums for consistent character width */}
+            <div className="mb-8">
+              <div className="text-6xl sm:text-7xl font-extralight tabular-nums tracking-tighter text-foreground mb-4 leading-none">
+                {settings.currentSession === "sitting"
+                  ? timer.formatTime
+                  : standing.formatTime}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {settings.currentSession === "sitting"
+                  ? DEFAULT_TIMER_PRESETS.find(
+                      (p) => p.seconds === settings.timerDuration
+                    )?.label || "Custom Duration"
+                  : "Standing time"}
+              </div>
+            </div>
 
-          {/* Control Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-3 items-center">
+            {/* Progress Bar */}
             {settings.currentSession === "sitting" &&
-            (timer.status === "idle" || timer.status === "paused") ? (
-              <Button
-                onClick={timer.start}
-                className="gap-2 px-8 py-2.5 rounded-xl"
-              >
-                <Play className="h-4 w-4" />
-                {timer.status === "idle" ? "Start Timer" : "Resume"}
-              </Button>
-            ) : settings.currentSession === "sitting" ? (
-              <Button
-                onClick={timer.pause}
-                variant="outline"
-                className="gap-2 px-8 py-2.5 rounded-xl"
-              >
-                <Pause className="h-4 w-4" />
-                Pause
-              </Button>
-            ) : (
-              <Button
-                onClick={
-                  standing.status === "running"
-                    ? standing.pause
-                    : standing.start
-                }
-                className="gap-2 px-8 py-2.5 rounded-xl"
-              >
-                {standing.status === "running" ? (
-                  <>
-                    <Pause className="h-4 w-4" />
-                    Pause
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-4 w-4" />
-                    Start
-                  </>
-                )}
-              </Button>
-            )}
+              timer.status === "running" && (
+                <div className="mb-8">
+                  <div className="w-full bg-foreground/10 rounded-full h-0.5">
+                    <div
+                      className="bg-foreground h-0.5 rounded-full transition-all duration-1000 ease-linear"
+                      style={{ width: `${timer.progress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
 
-            {/* Mode switch placed next to primary control */}
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleToggleMode}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {settings.currentSession === "sitting"
-                ? "Switch to standing"
-                : "Switch to sitting"}
-            </Button>
-
-            <div className="flex justify-center gap-2">
+            {/* Control Buttons */}
+            <div className="flex flex-col sm:flex-row justify-center gap-3 items-center">
               {settings.currentSession === "sitting" &&
-                (timer.status === "running" || timer.status === "paused") && (
-                  <Button
-                    onClick={timer.stop}
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Stop"
-                    title="Stop"
-                    className="rounded-lg"
-                  >
-                    <Square className="h-4 w-4" />
-                  </Button>
-                )}
-              {settings.currentSession === "sitting" ? (
+              (timer.status === "idle" || timer.status === "paused") ? (
                 <Button
-                  onClick={timer.reset}
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Reset"
-                  title="Reset"
-                  className="rounded-lg"
+                  onClick={timer.start}
+                  className="gap-2 px-8 py-2.5 rounded-xl"
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  <Play className="h-4 w-4" />
+                  {timer.status === "idle" ? "Start Timer" : "Resume"}
+                </Button>
+              ) : settings.currentSession === "sitting" ? (
+                <Button
+                  onClick={timer.pause}
+                  variant="outline"
+                  className="gap-2 px-8 py-2.5 rounded-xl"
+                >
+                  <Pause className="h-4 w-4" />
+                  Pause
                 </Button>
               ) : (
                 <Button
-                  onClick={standing.reset}
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Reset"
-                  title="Reset"
-                  className="rounded-lg"
+                  onClick={
+                    standing.status === "running"
+                      ? standing.pause
+                      : standing.start
+                  }
+                  className="gap-2 px-8 py-2.5 rounded-xl"
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  {standing.status === "running" ? (
+                    <>
+                      <Pause className="h-4 w-4" />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4" />
+                      Start
+                    </>
+                  )}
                 </Button>
               )}
+
+              {/* Mode switch placed next to primary control */}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleToggleMode}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {settings.currentSession === "sitting"
+                  ? "Switch to standing"
+                  : "Switch to sitting"}
+              </Button>
+
+              <div className="flex justify-center gap-2">
+                {settings.currentSession === "sitting" &&
+                  (timer.status === "running" || timer.status === "paused") && (
+                    <Button
+                      onClick={timer.stop}
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Stop"
+                      title="Stop"
+                      className="rounded-lg"
+                    >
+                      <Square className="h-4 w-4" />
+                    </Button>
+                  )}
+                {settings.currentSession === "sitting" ? (
+                  <Button
+                    onClick={timer.reset}
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Reset"
+                    title="Reset"
+                    className="rounded-lg"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={standing.reset}
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Reset"
+                    title="Reset"
+                    className="rounded-lg"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Settings Toggle */}
-        <div className="flex justify-center mb-8">
-          <Button
-            onClick={() => setShowSettings(!showSettings)}
-            variant="ghost"
-            size="sm"
-            className="gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Settings className="h-4 w-4" />
-            {showSettings ? "Hide Settings" : "Settings"}
-          </Button>
-        </div>
-
-        {/* Settings Panel */}
-        {showSettings && (
-          <div className="bg-card rounded-2xl p-6 border border-border/50">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-base font-medium text-foreground mb-1">
+          {/* Settings Dialog for StandingDeskTimer */}
+          {/* Settings Dialog Toggle Button */}
+          <div className="flex justify-center mb-8">
+            <Button
+              onClick={() => setShowSettings(true)}
+              variant="ghost"
+              size="sm"
+              className="gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-haspopup="dialog"
+              aria-controls="settings-dialog"
+              aria-expanded={showSettings}
+              type="button"
+            >
+              <Settings className="h-4 w-4" />
+              {"Settings"}
+            </Button>
+          </div>
+          {/* Settings Dialog */}
+          <Dialog open={showSettings} onOpenChange={setShowSettings}>
+            <DialogContent
+              id="settings-dialog"
+              aria-modal="true"
+              className="max-w-md w-full bg-card rounded-2xl p-0 border border-border/50"
+            >
+              <DialogHeader className="px-6 pt-6 pb-2">
+                <DialogTitle className="text-base font-medium text-foreground mb-1">
                   Settings
-                </h3>
-                <p className="text-sm text-muted-foreground">
+                </DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
                   Customize your timer and notifications
-                </p>
-              </div>
-
-              {/* Timer Duration */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">
-                  Timer Duration
-                </label>
-                <Select
-                  value={settings.timerDuration.toString()}
-                  onValueChange={handleTimerPresetChange}
-                  disabled={timer.status === "running"}
-                >
-                  <SelectTrigger className="bg-background/50 border-border/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DEFAULT_TIMER_PRESETS.map((preset) => (
-                      <SelectItem
-                        key={preset.seconds}
-                        value={preset.seconds.toString()}
-                      >
-                        {preset.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Speech Settings */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between py-2">
-                  <div>
-                    <label className="text-sm font-medium text-foreground">
-                      Voice Notifications
-                    </label>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Speak reminder when timer completes
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.speechEnabled}
-                    onCheckedChange={handleSpeechToggle}
-                  />
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 px-6 pb-2">
+                {/* Timer Duration */}
+                <div className="space-y-3">
+                  <label
+                    htmlFor="timer-duration-select"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    Timer Duration
+                  </label>
+                  <Select
+                    value={settings.timerDuration.toString()}
+                    onValueChange={handleTimerPresetChange}
+                    disabled={timer.status === "running"}
+                  >
+                    <SelectTrigger
+                      id="timer-duration-select"
+                      className="bg-background/50 border-border/50"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DEFAULT_TIMER_PRESETS.map((preset) => (
+                        <SelectItem
+                          key={preset.seconds}
+                          value={preset.seconds.toString()}
+                        >
+                          {preset.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {settings.speechEnabled && speech.isSupported && (
-                  <div className="space-y-3 pl-4 border-l border-border/50">
-                    <label className="text-sm font-medium text-foreground">
-                      Voice Selection
-                    </label>
-                    <Select
-                      value={settings.selectedVoice || ""}
-                      onValueChange={handleVoiceChange}
-                    >
-                      <SelectTrigger className="bg-background/50 border-border/50">
-                        <SelectValue
-                          placeholder="Choose a voice"
-                          className="truncate max-w-40"
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {speech.voices.map((voice) => (
-                          <SelectItem
-                            key={voice.voiceURI}
-                            value={voice.voiceURI}
-                            title={voice.name}
-                          >
-                            <div className="flex items-center justify-between w-full min-w-0 max-w-64">
-                              <span className="truncate flex-1 mr-2">
-                                {voice.name}
-                              </span>
-                              <span className="text-muted-foreground text-xs shrink-0">
-                                ({voice.lang})
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {/* Speech Settings */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-2">
+                    <div>
+                      <label className="text-sm font-medium text-foreground">
+                        Voice Notifications
+                      </label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Speak reminder when timer completes
+                      </p>
+                    </div>
+                    <Switch
+                      checked={settings.speechEnabled}
+                      onCheckedChange={handleSpeechToggle}
+                      aria-checked={settings.speechEnabled}
+                      aria-label="Toggle voice notifications"
+                    />
                   </div>
-                )}
 
-                {settings.speechEnabled && !speech.isSupported && (
-                  <div className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
-                    ⚠️ Voice notifications are not supported in this browser
-                  </div>
-                )}
+                  {settings.speechEnabled && speech.isSupported && (
+                    <div className="space-y-3 pl-4 border-l border-border/50">
+                      <label
+                        htmlFor="voice-select"
+                        className="text-sm font-medium text-foreground"
+                      >
+                        Voice Selection
+                      </label>
+                      <Select
+                        value={settings.selectedVoice || ""}
+                        onValueChange={handleVoiceChange}
+                      >
+                        <SelectTrigger
+                          id="voice-select"
+                          className="bg-background/50 border-border/50"
+                        >
+                          <SelectValue
+                            placeholder="Choose a voice"
+                            className="truncate max-w-40"
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {speech.voices.map((voice) => (
+                            <SelectItem
+                              key={voice.voiceURI}
+                              value={voice.voiceURI}
+                              title={voice.name}
+                            >
+                              <div className="flex items-center justify-between w-full min-w-0 max-w-64">
+                                <span className="truncate flex-1 mr-2">
+                                  {voice.name}
+                                </span>
+                                <span className="text-muted-foreground text-xs shrink-0">
+                                  ({voice.lang})
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {settings.speechEnabled && !speech.isSupported && (
+                    <div className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
+                      {"\u26A0\uFE0F"} Voice notifications are not supported in
+                      this browser
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+              <DialogFooter className="px-6 pb-4">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowSettings(false)}
+                  type="button"
+                  className="w-full"
+                  aria-label="Close settings"
+                >
+                  Close
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         {/* Completion Alert - simplified and calm */}
         {showAlert && (
