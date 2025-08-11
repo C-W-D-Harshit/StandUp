@@ -4,7 +4,7 @@ export interface TimerPreset {
   seconds: number;
 }
 
-export type SessionType = 'sitting' | 'standing';
+export type SessionType = "sitting" | "standing";
 
 export interface AppSettings {
   timerDuration: number; // in seconds
@@ -14,14 +14,13 @@ export interface AppSettings {
   speechPitch: number;
   speechVolume: number;
   currentSession: SessionType;
-  sessionCount: number;
 }
 
 export const DEFAULT_TIMER_PRESETS: TimerPreset[] = [
-  { label: '15 minutes', minutes: 15, seconds: 15 * 60 },
-  { label: '30 minutes', minutes: 30, seconds: 30 * 60 },
-  { label: '45 minutes', minutes: 45, seconds: 45 * 60 },
-  { label: '60 minutes', minutes: 60, seconds: 60 * 60 },
+  { label: "15 minutes", minutes: 15, seconds: 15 * 60 },
+  { label: "30 minutes", minutes: 30, seconds: 30 * 60 },
+  { label: "45 minutes", minutes: 45, seconds: 45 * 60 },
+  { label: "60 minutes", minutes: 60, seconds: 60 * 60 },
 ] as const;
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -31,11 +30,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   speechRate: 1,
   speechPitch: 1,
   speechVolume: 1,
-  currentSession: 'sitting',
-  sessionCount: 0,
+  currentSession: "sitting",
 } as const;
 
 export const SESSION_MESSAGES = {
-  sitting: 'Time to stand up! Take a break and change your posture.',
-  standing: 'You can sit back down now. Great job on standing!',
+  sitting: "Time to stand up! Take a break and change your posture.",
 } as const;

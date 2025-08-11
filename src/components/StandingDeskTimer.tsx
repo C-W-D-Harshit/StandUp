@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Play, Pause, Square, RotateCcw, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 
 import { useTimer } from "@/hooks/useTimer";
+import { useStopwatch } from "@/hooks/useStopwatch";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import {
@@ -40,37 +41,63 @@ export function StandingDeskTimer() {
   const [showAlert, setShowAlert] = useState(false);
 
   const timer = useTimer(settings.timerDuration);
+  const standing = useStopwatch();
   const speech = useSpeech();
+  const hasAnnouncedRef = useRef<boolean>(false);
 
-  // Handle timer completion and session cycling
+  // Handle timer completion: sitting → switch to standing stopwatch, show alert
   useEffect(() => {
-    if (timer.status === "completed") {
-      setShowAlert(true);
-
-      const currentMessage = SESSION_MESSAGES[settings.currentSession];
-
-      // Try speech synthesis with a small delay to ensure it works
-      if (settings.speechEnabled && speech.isSupported) {
-        setTimeout(() => {
-          speech.speak(currentMessage, {
-            enabled: settings.speechEnabled,
-            voice: settings.selectedVoice,
-            rate: settings.speechRate,
-            pitch: settings.speechPitch,
-            volume: settings.speechVolume,
-          });
-        }, 500);
-      }
-
-      // Hide alert after 15 seconds (longer to ensure speech completes)
-      const alertTimer = setTimeout(() => {
-        setShowAlert(false);
-        timer.reset();
-      }, 15000);
-
-      return () => clearTimeout(alertTimer);
+    if (timer.status !== "completed") {
+      // Leaving completed state: allow next announcement
+      hasAnnouncedRef.current = false;
+      return;
     }
-  }, [timer.status, timer.reset, settings, speech]);
+
+    // Guard to ensure we only announce once per completion
+    if (hasAnnouncedRef.current) return;
+    hasAnnouncedRef.current = true;
+
+    setShowAlert(true);
+
+    const currentMessage = SESSION_MESSAGES.sitting;
+    if (settings.speechEnabled && speech.isSupported) {
+      // slight delay improves reliability after cancel/speak cycles
+      setTimeout(() => {
+        speech.speak(currentMessage, {
+          enabled: settings.speechEnabled,
+          voice: settings.selectedVoice,
+          rate: settings.speechRate,
+          pitch: settings.speechPitch,
+          volume: settings.speechVolume,
+        });
+      }, 300);
+    }
+
+    const alertTimer = setTimeout(() => {
+      setShowAlert(false);
+      speech.stop();
+      // switch to standing mode and start stopwatch
+      setSettings((prev) => ({ ...prev, currentSession: "standing" }));
+      standing.reset();
+      standing.start();
+      hasAnnouncedRef.current = false;
+    }, 15000);
+
+    return () => clearTimeout(alertTimer);
+  }, [
+    timer.status,
+    timer.reset,
+    settings.speechEnabled,
+    settings.selectedVoice,
+    settings.speechRate,
+    settings.speechPitch,
+    settings.speechVolume,
+    speech.isSupported,
+    speech.speak,
+    speech.stop,
+    standing.reset,
+    standing.start,
+  ]);
 
   // Update timer duration when settings change
   useEffect(() => {
@@ -111,14 +138,12 @@ export function StandingDeskTimer() {
 
   const dismissAlert = () => {
     setShowAlert(false);
-    timer.reset();
-    
-    // Cycle to the next session type
-    setSettings(prev => ({
-      ...prev,
-      currentSession: prev.currentSession === 'sitting' ? 'standing' : 'sitting',
-      sessionCount: prev.sessionCount + 1,
-    }));
+    // switch to standing mode and start stopwatch immediately
+    speech.stop();
+    setSettings((prev) => ({ ...prev, currentSession: "standing" }));
+    standing.reset();
+    standing.start();
+    hasAnnouncedRef.current = false;
   };
 
   const handleShowAlert = () => {
@@ -127,6 +152,22 @@ export function StandingDeskTimer() {
 
   const handleHideAlert = () => {
     setShowAlert(false);
+  };
+
+  // Toggle between sitting (countdown) and standing (stopwatch)
+  const handleToggleMode = () => {
+    speech.stop();
+    if (settings.currentSession === "sitting") {
+      timer.stop();
+      standing.reset();
+      setSettings((prev) => ({ ...prev, currentSession: "standing" }));
+      standing.start();
+    } else {
+      standing.stop();
+      standing.reset();
+      timer.reset();
+      setSettings((prev) => ({ ...prev, currentSession: "sitting" }));
+    }
   };
 
   return (
@@ -145,28 +186,14 @@ export function StandingDeskTimer() {
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
             Take regular breaks to improve your health and productivity
           </p>
-          <div className="flex items-center justify-center gap-3">
-            <div className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-              settings.currentSession === 'sitting'
-                ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800'
-                : 'bg-muted text-muted-foreground border-border'
-            }`}>
-              💺 Sitting
-            </div>
-            <div className="text-muted-foreground">→</div>
-            <div className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-              settings.currentSession === 'standing'
-                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800'
-                : 'bg-muted text-muted-foreground border-border'
-            }`}>
-              🧍 Standing
+          <div className="flex items-center justify-center">
+            <div className="px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-muted/40 text-foreground/80">
+              {settings.currentSession === "sitting"
+                ? "💺 Sitting mode"
+                : "🧍 Standing mode"}
             </div>
           </div>
-          {settings.sessionCount > 0 && (
-            <div className="text-xs text-muted-foreground mt-2">
-              Session #{settings.sessionCount + 1}
-            </div>
-          )}
+          {/* Mode switch moved near primary controls below */}
         </div>
 
         {/* Main Timer Display */}
@@ -185,10 +212,10 @@ export function StandingDeskTimer() {
                     : "bg-muted-foreground"
                 }`}
               />
-              {timer.status === "idle" && `Ready to ${settings.currentSession === 'sitting' ? 'sit' : 'stand'}`}
-              {timer.status === "running" && `${settings.currentSession === 'sitting' ? 'Sitting' : 'Standing'} session`}
+              {timer.status === "idle" && "Ready"}
+              {timer.status === "running" && "Sitting session"}
               {timer.status === "paused" && "Paused"}
-              {timer.status === "completed" && `Time to ${settings.currentSession === 'sitting' ? 'stand' : 'sit'}!`}
+              {timer.status === "completed" && "Time to stand!"}
             </div>
           </div>
 
@@ -196,30 +223,36 @@ export function StandingDeskTimer() {
           {/* Uses tabular-nums for consistent character width */}
           <div className="mb-8">
             <div className="text-6xl sm:text-7xl font-extralight tabular-nums tracking-tighter text-foreground mb-4 leading-none">
-              {timer.formatTime}
+              {settings.currentSession === "sitting"
+                ? timer.formatTime
+                : standing.formatTime}
             </div>
             <div className="text-sm text-muted-foreground">
-              {DEFAULT_TIMER_PRESETS.find(
-                (p) => p.seconds === settings.timerDuration
-              )?.label || "Custom Duration"}
+              {settings.currentSession === "sitting"
+                ? DEFAULT_TIMER_PRESETS.find(
+                    (p) => p.seconds === settings.timerDuration
+                  )?.label || "Custom Duration"
+                : "Standing time"}
             </div>
           </div>
 
           {/* Progress Bar */}
-          {timer.status === "running" && (
-            <div className="mb-8">
-              <div className="w-full bg-muted/50 rounded-full h-0.5">
-                <div
-                  className="bg-foreground h-0.5 rounded-full transition-all duration-1000 ease-linear"
-                  style={{ width: `${timer.progress}%` }}
-                />
+          {settings.currentSession === "sitting" &&
+            timer.status === "running" && (
+              <div className="mb-8">
+                <div className="w-full bg-muted/50 rounded-full h-0.5">
+                  <div
+                    className="bg-foreground h-0.5 rounded-full transition-all duration-1000 ease-linear"
+                    style={{ width: `${timer.progress}%` }}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Control Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-3">
-            {timer.status === "idle" || timer.status === "paused" ? (
+          <div className="flex flex-col sm:flex-row justify-center gap-3 items-center">
+            {settings.currentSession === "sitting" &&
+            (timer.status === "idle" || timer.status === "paused") ? (
               <Button
                 onClick={timer.start}
                 className="gap-2 px-8 py-2.5 rounded-xl"
@@ -227,7 +260,7 @@ export function StandingDeskTimer() {
                 <Play className="h-4 w-4" />
                 {timer.status === "idle" ? "Start Timer" : "Resume"}
               </Button>
-            ) : (
+            ) : settings.currentSession === "sitting" ? (
               <Button
                 onClick={timer.pause}
                 variant="outline"
@@ -236,31 +269,78 @@ export function StandingDeskTimer() {
                 <Pause className="h-4 w-4" />
                 Pause
               </Button>
+            ) : (
+              <Button
+                onClick={
+                  standing.status === "running"
+                    ? standing.pause
+                    : standing.start
+                }
+                className="gap-2 px-8 py-2.5 rounded-xl"
+              >
+                {standing.status === "running" ? (
+                  <>
+                    <Pause className="h-4 w-4" />
+                    Pause
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4" />
+                    Start
+                  </>
+                )}
+              </Button>
             )}
 
+            {/* Mode switch placed next to primary control */}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleToggleMode}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {settings.currentSession === "sitting"
+                ? "Switch to standing"
+                : "Switch to sitting"}
+            </Button>
+
             <div className="flex justify-center gap-2">
-              {(timer.status === "running" || timer.status === "paused") && (
+              {settings.currentSession === "sitting" &&
+                (timer.status === "running" || timer.status === "paused") && (
+                  <Button
+                    onClick={timer.stop}
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Stop"
+                    title="Stop"
+                    className="rounded-lg"
+                  >
+                    <Square className="h-4 w-4" />
+                  </Button>
+                )}
+              {settings.currentSession === "sitting" ? (
                 <Button
-                  onClick={timer.stop}
+                  onClick={timer.reset}
                   variant="ghost"
                   size="icon"
-                  aria-label="Stop"
-                  title="Stop"
+                  aria-label="Reset"
+                  title="Reset"
                   className="rounded-lg"
                 >
-                  <Square className="h-4 w-4" />
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={standing.reset}
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Reset"
+                  title="Reset"
+                  className="rounded-lg"
+                >
+                  <RotateCcw className="h-4 w-4" />
                 </Button>
               )}
-              <Button
-                onClick={timer.reset}
-                variant="ghost"
-                size="icon"
-                aria-label="Reset"
-                title="Reset"
-                className="rounded-lg"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>
@@ -386,21 +466,19 @@ export function StandingDeskTimer() {
           <div className="fixed inset-0 bg-background/90 backdrop-blur-sm flex items-center justify-center p-6 z-50">
             <div className="bg-card border border-border/50 rounded-2xl p-6 max-w-sm w-full mx-auto text-center shadow-xl animate-in fade-in-0 scale-in-95 duration-300">
               <div className="mb-4">
-                <div className="text-3xl mb-2">
-                  {settings.currentSession === 'sitting' ? '🧍' : '💺'}
-                </div>
+                <div className="text-3xl mb-2">🧍</div>
                 <h2 className="text-lg font-medium text-foreground mb-2">
-                  {settings.currentSession === 'sitting' ? 'Time to stand!' : 'Time to sit!'}
+                  Time to stand!
                 </h2>
                 <p className="text-sm text-muted-foreground mb-6">
-                  {SESSION_MESSAGES[settings.currentSession]}
+                  {SESSION_MESSAGES.sitting}
                 </p>
               </div>
               <Button
                 onClick={dismissAlert}
                 className="w-full rounded-lg py-2.5"
               >
-                Start {settings.currentSession === 'sitting' ? 'Standing' : 'Sitting'} Session
+                Switch to standing
               </Button>
             </div>
           </div>

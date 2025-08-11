@@ -11,6 +11,7 @@ export interface TimerState {
 export function useTimer(initialDuration: number = 15 * 60) {
   const [timeRemaining, setTimeRemaining] = useState(initialDuration);
   const [status, setStatus] = useState<TimerStatus>('idle');
+  const [duration, setDuration] = useState(initialDuration);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const start = useCallback(() => {
@@ -27,20 +28,21 @@ export function useTimer(initialDuration: number = 15 * 60) {
 
   const stop = useCallback(() => {
     setStatus('idle');
-    setTimeRemaining(initialDuration);
-  }, [initialDuration]);
+    setTimeRemaining(duration);
+  }, [duration]);
 
   const reset = useCallback(() => {
     setStatus('idle');
-    setTimeRemaining(initialDuration);
-  }, [initialDuration]);
-
-  const setDuration = useCallback((duration: number) => {
     setTimeRemaining(duration);
+  }, [duration]);
+
+  const setTimerDuration = useCallback((newDuration: number) => {
+    setDuration(newDuration);
+    // Only reset time remaining if timer is idle
     if (status === 'idle') {
-      // Only update initial duration if timer is idle
-      setStatus('idle');
+      setTimeRemaining(newDuration);
     }
+    // If timer is running or paused, don't change the remaining time
   }, [status]);
 
   // Timer countdown effect
@@ -71,6 +73,7 @@ export function useTimer(initialDuration: number = 15 * 60) {
 
   // Update timer when initialDuration changes
   useEffect(() => {
+    setDuration(initialDuration);
     if (status === 'idle') {
       setTimeRemaining(initialDuration);
     }
@@ -89,8 +92,8 @@ export function useTimer(initialDuration: number = 15 * 60) {
     pause,
     stop,
     reset,
-    setDuration,
+    setDuration: setTimerDuration,
     formatTime: formatTime(timeRemaining),
-    progress: initialDuration > 0 ? ((initialDuration - timeRemaining) / initialDuration) * 100 : 0,
+    progress: duration > 0 ? ((duration - timeRemaining) / duration) * 100 : 0,
   };
 }
