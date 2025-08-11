@@ -21,7 +21,7 @@ import {
   SESSION_MESSAGES,
 } from "@/types";
 import type { AppSettings } from "@/types";
-import { DevPanel } from "./DevPanel";
+// import { DevPanel } from "./DevPanel";
 import {
   Dialog,
   DialogContent,
@@ -505,7 +505,7 @@ export function StandingDeskTimer() {
         )}
 
         {/* Developer Testing Panel (only in development) */}
-        {import.meta.env.DEV && (
+        {/* {import.meta.env.DEV && (
           <DevPanel
             timer={{
               timeRemaining: timer.timeRemaining,
@@ -520,7 +520,7 @@ export function StandingDeskTimer() {
             onShowAlert={handleShowAlert}
             onHideAlert={handleHideAlert}
           />
-        )}
+        )} */}
       </div>
       {/* End container */}
     </div>
