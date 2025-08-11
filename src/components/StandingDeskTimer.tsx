@@ -171,16 +171,16 @@ export function StandingDeskTimer() {
   };
 
   return (
-    <div className="min-h-screen bg-background grid place-items-center">
+    <div className="min-h-screen bg-transparent grid place-items-center z-10">
       {/* Theme Toggle - Fixed Position */}
       <div className="fixed top-6 right-6 z-40">
         <ModeToggle />
       </div>
 
-      <div className="w-full max-w-md px-6 py-10">
-        <div className="rounded-2xl border border-border/50 bg-card/90 backdrop-blur-2xl px-6 py-8 shadow-sm">
+      <div className="w-full max-w-md px-4 py-6 sm:px-6 sm:py-10">
+        <div className="rounded-2xl border border-border/50 bg-card/90 backdrop-blur-2xl px-4 py-6 sm:px-6 sm:py-8 shadow-sm">
           {/* Header */}
-          <div className="text-center mb-10">
+          <div className="text-center mb-6 sm:mb-10">
             <h1 className="text-2xl font-medium tracking-tight text-foreground mb-3">
               Standing Desk Timer
             </h1>
@@ -197,11 +197,11 @@ export function StandingDeskTimer() {
             {/* Mode switch moved near primary controls below */}
           </div>
           {/* Main Timer Display */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             {/* Large Timer Display */}
             {/* Uses tabular-nums for consistent character width */}
-            <div className="mb-8">
-              <div className="text-6xl sm:text-7xl font-extralight tabular-nums tracking-tighter text-foreground mb-4 leading-none">
+            <div className="mb-6 sm:mb-8">
+              <div className="text-5xl sm:text-7xl font-extralight tabular-nums tracking-tighter text-foreground mb-3 sm:mb-4 leading-none">
                 {settings.currentSession === "sitting"
                   ? timer.formatTime
                   : standing.formatTime}
@@ -218,7 +218,7 @@ export function StandingDeskTimer() {
             {/* Progress Bar */}
             {settings.currentSession === "sitting" &&
               timer.status === "running" && (
-                <div className="mb-8">
+                <div className="mb-6 sm:mb-8">
                   <div className="w-full bg-foreground/10 rounded-full h-0.5">
                     <div
                       className="bg-foreground h-0.5 rounded-full transition-all duration-1000 ease-linear"
@@ -229,12 +229,12 @@ export function StandingDeskTimer() {
               )}
 
             {/* Control Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center gap-3 items-center">
+            <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 items-center w-full">
               {settings.currentSession === "sitting" &&
               (timer.status === "idle" || timer.status === "paused") ? (
                 <Button
                   onClick={timer.start}
-                  className="gap-2 px-8 py-2.5 rounded-xl"
+                  className="gap-2 px-6 sm:px-8 py-2 sm:py-2.5 rounded-lg sm:rounded-xl"
                 >
                   <Play className="h-4 w-4" />
                   {timer.status === "idle" ? "Start Timer" : "Resume"}
@@ -243,7 +243,7 @@ export function StandingDeskTimer() {
                 <Button
                   onClick={timer.pause}
                   variant="outline"
-                  className="gap-2 px-8 py-2.5 rounded-xl"
+                  className="gap-2 px-6 sm:px-8 py-2 sm:py-2.5 rounded-lg sm:rounded-xl"
                 >
                   <Pause className="h-4 w-4" />
                   Pause
@@ -255,7 +255,7 @@ export function StandingDeskTimer() {
                       ? standing.pause
                       : standing.start
                   }
-                  className="gap-2 px-8 py-2.5 rounded-xl"
+                  className="gap-2 px-6 sm:px-8 py-2 sm:py-2.5 rounded-lg sm:rounded-xl"
                 >
                   {standing.status === "running" ? (
                     <>
@@ -283,31 +283,33 @@ export function StandingDeskTimer() {
                   : "Switch to sitting"}
               </Button>
 
-              <div className="flex justify-center gap-2">
-                {settings.currentSession === "sitting" &&
-                  (timer.status === "running" || timer.status === "paused") && (
+              <div className="flex justify-center gap-2 w-full sm:w-auto">
+                {settings.currentSession === "sitting" ? (
+                  <>
+                    {/* On mobile, put start/pause and reset on the same row by making this container full width */}
+                    {timer.status === "running" || timer.status === "paused" ? (
+                      <Button
+                        onClick={timer.stop}
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Stop"
+                        title="Stop"
+                        className="rounded-lg"
+                      >
+                        <Square className="h-4 w-4" />
+                      </Button>
+                    ) : null}
                     <Button
-                      onClick={timer.stop}
+                      onClick={timer.reset}
                       variant="ghost"
                       size="icon"
-                      aria-label="Stop"
-                      title="Stop"
+                      aria-label="Reset"
+                      title="Reset"
                       className="rounded-lg"
                     >
-                      <Square className="h-4 w-4" />
+                      <RotateCcw className="h-4 w-4" />
                     </Button>
-                  )}
-                {settings.currentSession === "sitting" ? (
-                  <Button
-                    onClick={timer.reset}
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Reset"
-                    title="Reset"
-                    className="rounded-lg"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
+                  </>
                 ) : (
                   <Button
                     onClick={standing.reset}
@@ -325,7 +327,7 @@ export function StandingDeskTimer() {
           </div>
           {/* Settings Dialog for StandingDeskTimer */}
           {/* Settings Dialog Toggle Button */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6 sm:mb-8">
             <Button
               onClick={() => setShowSettings(true)}
               variant="ghost"

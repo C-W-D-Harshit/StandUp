@@ -7,7 +7,7 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <StandingDeskTimer />
-      <StarsBackground className="fixed inset-0" />
+      <StarsBackground className="fixed inset-0 -z-10" />
       <Analytics />
     </ThemeProvider>
   );
